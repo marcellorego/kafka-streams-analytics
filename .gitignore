@@ -1,0 +1,10 @@
+.gradle/
+out/
+build/
+bin/
+.idea/
+**/.project
+**/.classpath
+**/.settings
+**/.vscode/**
+node_modules
