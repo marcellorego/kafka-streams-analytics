@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.kafka.stream.demo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;

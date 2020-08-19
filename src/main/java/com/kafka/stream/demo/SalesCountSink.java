@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.kafka.stream.demo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.kstream.KStream;
@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class PageCountSink {
+public class SalesCountSink {
 
     @StreamListener
-    public void process(@Input(AnalyticsBindings.PAGE_COUNT_IN) KStream<String, Long> counts) {
+    public void process(@Input(AnalyticsBindings.SALES_COUNT_IN) KStream<String, Long> counts) {
         counts.foreach((key, value) -> log.info(key + "=" + value));
     }
 }

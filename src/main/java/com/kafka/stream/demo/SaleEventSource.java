@@ -1,5 +1,6 @@
-package com.example.demo;
+package com.kafka.stream.demo;
 
+import com.kafka.stream.demo.domain.Sale;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -17,34 +18,34 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
-public class PageViewEventSource implements ApplicationRunner {
+public class SaleEventSource implements ApplicationRunner {
 
-    private final MessageChannel pageViewsOut;
+    private final MessageChannel saleSourceOut;
 
-    public PageViewEventSource(AnalyticsBindings analyticsBindings) {
-        this.pageViewsOut = analyticsBindings.pageViewsSource();
+    public SaleEventSource(AnalyticsBindings analyticsBindings) {
+        this.saleSourceOut = analyticsBindings.saleSource();
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
         List<String> names = Arrays.asList("Marcello", "Miguel", "Tom", "Sergio");
-        List<String> pages = Arrays.asList("site", "about", "map", "contact");
+        List<String> products = Arrays.asList("car", "house", "yacht", "plane");
 
         Runnable runnable = () -> {
 
             String rName = names.get(random.nextInt(names.size()));
-            String rPage = pages.get(random.nextInt(pages.size()));
+            String rProduct = products.get(random.nextInt(products.size()));
 
-            PageViewEvent pageViewEvent = new PageViewEvent(rName, rPage, Math.round(Math.random() * 1000L));
-            Message<PageViewEvent> message = MessageBuilder
-                    .withPayload(pageViewEvent)
-                    .setHeader(KafkaHeaders.MESSAGE_KEY, pageViewEvent.getUserId().getBytes())
+            Sale sale = new Sale(rName, rProduct, (long) random.nextInt(1, 5));
+            Message<Sale> message = MessageBuilder
+                    .withPayload(sale)
+                    .setHeader(KafkaHeaders.MESSAGE_KEY, sale.getUserId().getBytes())
                     .build();
             try {
-                pageViewsOut.send(message);
-                log.info("message sent {}", message);
+                saleSourceOut.send(message);
+                //log.info("message sent {}", message);
             } catch (Exception e) {
                 log.error("Error sending message", e);
             }

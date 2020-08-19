@@ -1,9 +1,10 @@
-package com.example.demo;
+package com.kafka.stream.demo;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.kafka.stream.demo.domain.Sales;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.Stores;
@@ -31,13 +32,13 @@ public class DemoApplication {
     @Bean
     public KeyValueStore<String, Long> countStore() {
         return Stores.keyValueStoreBuilder(
-                Stores.persistentKeyValueStore(AnalyticsBindings.PAGE_COUNT_MV), Serdes.String(),
+                Stores.persistentKeyValueStore(AnalyticsBindings.SALES_COUNT_MV), Serdes.String(),
                 Serdes.Long())
                 .build();
     }
 
     @Bean
-    public JsonSerde<PageViewEventCount> viewEventCountJsonSerde(ObjectMapper objectMapper) {
+    public JsonSerde<Sales> viewEventCountJsonSerde(ObjectMapper objectMapper) {
         return new JsonSerde<>(objectMapper);
     }
 
