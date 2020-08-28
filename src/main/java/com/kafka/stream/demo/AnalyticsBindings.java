@@ -1,6 +1,7 @@
 package com.kafka.stream.demo;
 
 import com.kafka.stream.demo.domain.Sale;
+import com.kafka.stream.demo.domain.Sales;
 import org.apache.kafka.streams.kstream.KStream;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
@@ -12,6 +13,8 @@ public interface AnalyticsBindings {
     String SALE_OUT = "saleOut";
 
     String SALES_COUNT_MV = "salesCountMView";
+    String WINDOWED_SALES_COUNT_MV = "windowedSalesCountMView";
+    String SUPPRESSED_WINDOWED_SALES_COUNT_MV = "suppressedWindowedSalesCountMView";
 
     String SALES_COUNT_IN = "salesCountIn";
     String SALES_COUNT_OUT = "salesCountOut";
@@ -23,8 +26,8 @@ public interface AnalyticsBindings {
     KStream<String, Sale> saleProcess();
 
     @Output(SALES_COUNT_OUT)
-    KStream<String, Long> salesCountSource();
+    KStream<String, Sales> salesCountSource();
 
     @Input(SALES_COUNT_IN)
-    KStream<String, Long> salesCountSink();
+    KStream<String, Sales> salesCountSink();
 }

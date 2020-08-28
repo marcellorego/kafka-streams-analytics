@@ -30,18 +30,16 @@ public class SaleEventSource implements ApplicationRunner {
     public void run(ApplicationArguments args) {
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        List<String> names = Arrays.asList("Marcello", "Miguel", "Tom", "Sergio");
         List<String> products = Arrays.asList("car", "house", "yacht", "plane");
 
         Runnable runnable = () -> {
 
-            String rName = names.get(random.nextInt(names.size()));
             String rProduct = products.get(random.nextInt(products.size()));
 
-            Sale sale = new Sale(rName, rProduct, (long) random.nextInt(1, 5));
+            Sale sale = new Sale(rProduct, 1L);
             Message<Sale> message = MessageBuilder
                     .withPayload(sale)
-                    .setHeader(KafkaHeaders.MESSAGE_KEY, sale.getUserId().getBytes())
+                    .setHeader(KafkaHeaders.MESSAGE_KEY, sale.getProductId().getBytes())
                     .build();
             try {
                 saleSourceOut.send(message);
