@@ -49,6 +49,6 @@ public class SaleEventSource implements ApplicationRunner {
             }
         };
 
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(runnable, 1, 1, TimeUnit.SECONDS);
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(runnable, 5, 5, TimeUnit.SECONDS);
     }
 }

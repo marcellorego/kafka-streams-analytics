@@ -64,7 +64,8 @@ public class SalesEventProcess {
         if (windowDuration.isZero()) {
 
             return saleByProduct
-                    .aggregate(this::initialize, this::aggregateAmount,
+                    .aggregate(this::initialize,
+                            this::aggregateAmount,
                             materializedAsPersistentStore(AnalyticsBindings.SALES_COUNT_MV, stringSerde, longSerde))
                     .toStream()
                     .mapValues(Sales::new);

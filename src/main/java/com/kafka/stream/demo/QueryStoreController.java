@@ -4,10 +4,7 @@ import com.kafka.stream.demo.domain.Sales;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Windowed;
-import org.apache.kafka.streams.state.KeyValueIterator;
-import org.apache.kafka.streams.state.QueryableStoreTypes;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.streams.state.ReadOnlyWindowStore;
+import org.apache.kafka.streams.state.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQueryService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,8 +53,8 @@ public class QueryStoreController {
 			ReadOnlyWindowStore<String, Long> salesCountStore =
 					interactiveQueryService.getQueryableStore(AnalyticsBindings.WINDOWED_SALES_COUNT_MV, QueryableStoreTypes.windowStore());
 
-			Instant endFilter = Instant.now();
-			Instant startFilter = Instant.now().minus(windowDuration);
+			Instant endFilter = Instant.now().minus(windowDuration);
+            Instant startFilter = endFilter.minus(windowDuration);
 
 			KeyValueIterator<Windowed<String>, Long> keyValueIterator = salesCountStore.fetchAll(startFilter, endFilter);
 			while (keyValueIterator.hasNext()) {
@@ -83,18 +80,35 @@ public class QueryStoreController {
 	@GetMapping(path = "/counts/{product}")
 	public Sales listSalesCount(@PathVariable("product") final String product) {
 
-		String storeName = AnalyticsBindings.WINDOWED_SALES_COUNT_MV;
-		if (windowDuration.isZero()) {
-			storeName = AnalyticsBindings.SALES_COUNT_MV;
-		}
+        if (windowDuration.isZero()) {
 
-		ReadOnlyKeyValueStore<String, Long> salesCountStore =
-				interactiveQueryService.getQueryableStore(storeName, QueryableStoreTypes.keyValueStore());
+            ReadOnlyKeyValueStore<String, Long> salesCountStore =
+                    interactiveQueryService.getQueryableStore(AnalyticsBindings.SALES_COUNT_MV, QueryableStoreTypes.keyValueStore());
 
-		final Long count = salesCountStore.get(product);
+			Long count = salesCountStore.get(product);
 
-		log.info("Found value {}", count);
+            log.info("Found value {}", count);
 
-		return new Sales(product, count);
-	}
+			return new Sales(product, count);
+
+        } else {
+
+            ReadOnlyWindowStore<String, Long> salesCountStore =
+                    interactiveQueryService.getQueryableStore(AnalyticsBindings.WINDOWED_SALES_COUNT_MV, QueryableStoreTypes.windowStore());
+
+			Instant endFilter = Instant.now().minus(windowDuration);
+			Instant startFilter = endFilter.minus(windowDuration);
+
+            WindowStoreIterator<Long> longWindowStoreIterator =
+					salesCountStore.fetch(product, startFilter, endFilter);
+
+            Long count = longWindowStoreIterator.hasNext() ?
+					longWindowStoreIterator.next().value : 0L;
+
+            log.info("Found value {}", count);
+
+			return new Sales(product, count);
+
+        }
+    }
 }
